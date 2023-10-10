@@ -1,3 +1,4 @@
+/* eslint-disable semi */
 import React from 'react';
 import './footer.css';
 import PropTypes from 'prop-types';

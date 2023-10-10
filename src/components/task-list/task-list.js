@@ -1,5 +1,5 @@
+/* eslint-disable semi */
 import React from 'react';
-
 import './task-list.css';
 import PropTypes from 'prop-types';
 
@@ -43,18 +43,6 @@ const TaskList = ({ todos, onCheckedClick, onDeletedTodo, editTusk }) => {
           </li>
         );
       })}
-
-      {/* <li>
-        <div className="view">
-          <input className="toggle" type="checkbox" />
-          <label>
-            <span className="description">Create react app</span>
-            <span className="created">created 5 minutes ago</span>
-          </label>
-          <button className="icon icon-edit"></button>
-          <button className="icon icon-destroy"></button>
-        </div>
-      </li> */}
     </ul>
   );
 };

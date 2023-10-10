@@ -1,5 +1,5 @@
+/* eslint-disable semi */
 import React from 'react';
-import './task-filter.css';
 
 const TaskFilter = () => {
   return (

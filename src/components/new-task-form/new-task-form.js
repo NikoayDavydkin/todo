@@ -1,35 +1,32 @@
+/* eslint-disable semi */
 import React from 'react';
 import './new-task-form.css';
 import PropTypes from 'prop-types';
 
 class NewTaskForm extends React.Component {
-  state = {
-    label: '',
-  };
+  constructor() {
+    super();
 
-  onLabelChange = (event) => {
-    this.setState((state) => {
-      return {
-        label: event.target.value,
-      };
-    });
-  };
-
-  onSubmit = (event) => {
-    event.preventDefault();
-    this.props.onItemAdded(this.state.label);
-    this.setState({
+    this.state = {
       label: '',
-    });
-  };
+    };
 
-  static defaultProps = {
-    onItemAdded: () => {},
-  };
+    this.onLabelChange = (event) => {
+      this.setState(() => {
+        return {
+          label: event.target.value,
+        };
+      });
+    };
 
-  static propTypes = {
-    onItemAdded: PropTypes.func,
-  };
+    this.onSubmit = (event) => {
+      event.preventDefault();
+      this.props.onItemAdded(this.state.label);
+      this.setState({
+        label: '',
+      });
+    };
+  }
 
   render() {
     return (
@@ -41,12 +38,19 @@ class NewTaskForm extends React.Component {
             placeholder="What needs to be done?"
             onChange={this.onLabelChange}
             value={this.state.label}
-            // autofocus
           />
         </form>
       </header>
     );
   }
 }
+
+NewTaskForm.defaultProps = {
+  onItemAdded: () => {},
+};
+
+NewTaskForm.propTypes = {
+  onItemAdded: PropTypes.func,
+};
 
 export default NewTaskForm;
