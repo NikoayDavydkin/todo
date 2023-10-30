@@ -1,149 +1,139 @@
 /* eslint-disable semi */
-import React from 'react';
+import React, { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 import NewTaskForm from './components/new-task-form/new-task-form';
 import TaskList from './components/task-list/task-list';
 import Footer from './components/footer/footer';
 
-class App extends React.Component {
-  constructor() {
-    super();
-    this.countId = 100;
-    this.state = {
-      todoData: [this.createTodo('breakfast'), this.createTodo('create react app'), this.createTodo('shift tub')],
-      todoActive: 'All',
-    };
+const App = () => {
+  const [todoData, setTodoData] = useState([]);
+  const [todoActive, setTodoActive] = useState('All');
 
-    //function deleted
-    this.onDeletedTodo = (id) => {
-      this.setState(({ todoData }) => {
-        const idx = todoData.findIndex((el) => {
-          return el.id == id;
-        });
-
-        const newArray = [...todoData.slice(0, idx), ...todoData.slice(idx + 1)];
-
-        return {
-          todoData: newArray,
-        };
+  //function deleted
+  const onDeletedTodo = (id) => {
+    setTodoData((todoData) => {
+      const idx = todoData.findIndex((el) => {
+        return el.id == id;
       });
-    };
 
-    //function ClearAll
-    this.clearAll = () => {
-      let newData = this.filterTodo('Active');
+      const newArray = [...todoData.slice(0, idx), ...todoData.slice(idx + 1)];
 
-      this.setState({
-        todoData: newData,
+      return newArray;
+    });
+  };
+
+  //function ClearAll
+  const clearAll = () => {
+    let newData = filterTodo('Active');
+
+    setTodoData(newData);
+  };
+
+  //function completed
+  const onCheckedClick = (id) => {
+    setTodoData((todoData) => {
+      const idx = todoData.findIndex((el) => {
+        return el.id == id;
       });
-    };
 
-    //function completed
-    this.onCheckedClick = (id) => {
-      this.setState(({ todoData }) => {
-        const idx = todoData.findIndex((el) => {
-          return el.id == id;
-        });
+      const oldItem = todoData[idx];
+      const newItem = { ...oldItem, completed: !oldItem.completed };
 
-        const oldItem = todoData[idx];
-        const newItem = { ...oldItem, completed: !oldItem.completed };
+      const newArray = [...todoData.slice(0, idx), newItem, ...todoData.slice(idx + 1)];
 
-        const newArray = [...todoData.slice(0, idx), newItem, ...todoData.slice(idx + 1)];
+      return newArray;
+    });
+  };
 
-        return {
-          todoData: newArray,
-        };
+  //function Added
+  const onItemAdded = (labelTask, labelMin, labelSec) => {
+    setTodoData((todoData) => {
+      return [...todoData, createTodo(labelTask, labelMin, labelSec)];
+    });
+  };
+
+  //function StateActive
+  const tuskComplete = (value) => {
+    setTodoActive(value);
+  };
+
+  //function filter todo
+  const filterTodo = (value) => {
+    let newArray = todoData.slice();
+
+    if (value === 'All') {
+      return newArray;
+    } else if (value === 'Active') {
+      let newArrayActive = newArray.filter((x) => {
+        return !x.completed;
       });
-    };
 
-    //function Added
-    this.onItemAdded = (value) => {
-      this.setState(({ todoData }) => {
-        return {
-          todoData: [...todoData, this.createTodo(value)],
-        };
+      return newArrayActive;
+    } else {
+      let newArrayCompleted = newArray.filter((x) => {
+        return x.completed;
       });
-    };
+      return newArrayCompleted;
+    }
+  };
 
-    //function StateActive
-    this.tuskComplete = (value) => {
-      this.setState({
-        todoActive: value,
+  const filterTodoTwo = () => {
+    let newArray = todoData.slice();
+
+    return newArray;
+  };
+
+  //function editTusk
+  const editTusk = (id, value) => {
+    setTodoData((todoData) => {
+      const idx = todoData.findIndex((el) => {
+        return el.id == id;
       });
-    };
 
-    //function filter todo
-    this.filterTodo = (value) => {
-      let newArray = this.state.todoData.slice();
+      const oldItem = todoData[idx];
+      const newItem = { ...oldItem, editing: !oldItem.editing, label: value };
 
-      if (value === 'All') {
-        return newArray;
-      } else if (value === 'Active') {
-        let newArrayActive = newArray.filter((x) => {
-          return !x.completed;
-        });
+      const newArray = [...todoData.slice(0, idx), newItem, ...todoData.slice(idx + 1)];
 
-        return newArrayActive;
-      } else {
-        let newArrayCompleted = newArray.filter((x) => {
-          return x.completed;
-        });
-        return newArrayCompleted;
-      }
-    };
-
-    //function editTusk
-    this.editTusk = (id, value) => {
-      this.setState(({ todoData }) => {
-        const idx = todoData.findIndex((el) => {
-          return el.id == id;
-        });
-
-        const oldItem = todoData[idx];
-        const newItem = { ...oldItem, editing: !oldItem.editing, label: value };
-
-        const newArray = [...todoData.slice(0, idx), newItem, ...todoData.slice(idx + 1)];
-
-        return {
-          todoData: newArray,
-        };
-      });
-    };
-  }
+      return newArray;
+    });
+  };
 
   //function create
 
-  createTodo(value) {
+  function createTodo(labelTask, labelMin, labelSec) {
     return {
-      id: this.countId++,
-      label: value,
+      id: uuidv4(),
+      label: labelTask,
+      minutes: labelMin,
+      secundes: labelSec,
       completed: false,
       editing: false,
       date: new Date(),
     };
   }
 
-  render() {
-    return (
-      <section className="todoapp">
-        <NewTaskForm onItemAdded={this.onItemAdded} />
-        <section className="main">
-          <TaskList
-            editTusk={this.editTusk}
-            onDeletedTodo={this.onDeletedTodo}
-            onCheckedClick={this.onCheckedClick}
-            todos={this.filterTodo(this.state.todoActive)}
-          />
-          <Footer
-            itemsLeft={this.filterTodo('Active')}
-            stateButtons={this.state.todoActive}
-            tuskComplete={this.tuskComplete}
-            clearAll={this.clearAll}
-          />
-        </section>
+  return (
+    <section className="todoapp">
+      <NewTaskForm onItemAdded={onItemAdded} />
+      <section className="main">
+        <TaskList
+          editTusk={editTusk}
+          onDeletedTodo={onDeletedTodo}
+          onCheckedClick={onCheckedClick}
+          todos={filterTodoTwo(todoActive)}
+          todoActive={todoActive}
+        />
+        <Footer
+          itemsLeft={filterTodo('Active')}
+          stateButtons={todoActive}
+          tuskComplete={tuskComplete}
+          clearAll={clearAll}
+        />
       </section>
-    );
-  }
-}
+    </section>
+  );
+};
 
 export default App;

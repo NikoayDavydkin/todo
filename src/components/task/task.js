@@ -1,88 +1,134 @@
+/* eslint-disable indent */
 /* eslint-disable semi */
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import './task.css';
 import { formatDistance } from 'date-fns';
 import PropTypes from 'prop-types';
 
-class Task extends Component {
-  constructor() {
-    super();
+const Task = ({ date, value, id, onCheckedClick, todoDelete, editTusk, completed, secundes, minutes }) => {
+  const [label, setLabel] = useState('');
+  const [min, setMin] = useState(Number(minutes));
+  const [sec, setSec] = useState(Number(secundes));
+  const [timerState, setTimerState] = useState(true);
 
-    this.state = {
-      label: '',
+  let timer;
+
+  useEffect(() => {
+    if (!timerState) return;
+    if (sec === 1 && min === 0) {
+      return () => {
+        setTimerState(false);
+        clearInterval(timer);
+        setMin(0);
+        setSec(0);
+      };
+    }
+    timer = setInterval(() => {
+      setSec((c) => c - 1);
+      if (sec === 1) {
+        setMin(min - 1);
+        setSec(59);
+      }
+    }, 1000);
+    return () => {
+      if (sec === 1 && min === 0) {
+        clearInterval(timer);
+        setTimerState(false);
+      } else {
+        clearInterval(timer);
+      }
     };
+  });
 
-    this.checkedReturn = () => {
-      return this.props.completed;
-    };
+  const checkedReturn = () => {
+    return completed;
+  };
 
-    this.onLabelChange = (event) => {
-      this.setState(() => {
-        return {
-          label: event.target.value,
-        };
-      });
-    };
+  const onLabelChange = (event) => {
+    setLabel(event.target.value);
+  };
 
-    this.onSubmit = (event) => {
-      event.preventDefault();
-      this.props.editTusk(this.props.id, this.state.label);
-      this.setState({
-        label: '',
-      });
-    };
-  }
+  const onSubmit = (event) => {
+    event.preventDefault();
+    editTusk(id, label);
+    setLabel('');
+  };
 
-  render() {
-    const { date, value, id, onCheckedClick, todoDelete, editTusk } = this.props;
+  const stop = () => {
+    clearInterval(timer);
+  };
 
-    return (
-      <>
-        <div className="view">
-          <input
-            onClick={() => {
-              onCheckedClick(id);
-            }}
-            className="toggle"
-            type="checkbox"
-            checked={this.checkedReturn()}
-            readOnly={true}
-          />
-          <label>
-            <span className="description">{value}</span>
-            <span className="created">
-              created{' '}
-              {formatDistance(date, new Date(), {
-                includeSeconds: true,
-              }).replace('less than', '')}{' '}
-              ago
-            </span>
-          </label>
-          <button
-            onClick={() => {
-              editTusk(id, '');
-            }}
-            className="icon icon-edit"
-          ></button>
-          <button
-            onClick={() => {
-              todoDelete(id);
-            }}
-            className="icon icon-destroy"
-          ></button>
-        </div>
-        <form onSubmit={this.onSubmit}>
-          <input onChange={this.onLabelChange} value={this.state.label} type="text" className="edit" />
-        </form>
-      </>
-    );
-  }
-}
+  const start = () => {
+    if (timerState) {
+      timer = setInterval(() => {
+        setSec((c) => c - 1);
+        if (sec === 1 && min === 0) {
+          stop();
+          setTimerState(false);
+        }
+
+        if (sec === 1) {
+          setMin(min - 1);
+          setSec(59);
+        }
+      }, 1000);
+    } else {
+      stop();
+    }
+  };
+
+  return (
+    <>
+      <div className="view">
+        <input
+          onClick={() => {
+            onCheckedClick(id);
+          }}
+          className="toggle"
+          type="checkbox"
+          checked={checkedReturn()}
+          readOnly={true}
+        />
+
+        <label>
+          <span className="title">{value}</span>
+          <span className="description">
+            <button onClick={timerState ? start : null} className="icon icon-play"></button>
+            <button onClick={stop} className="icon icon-pause"></button> {min < 10 ? '0' + min : min}:
+            {sec < 10 ? '0' + sec : sec}
+          </span>
+          <span className="description">
+            created{' '}
+            {formatDistance(date, new Date(), {
+              includeSeconds: true,
+            }).replace('less than', '')}{' '}
+            ago
+          </span>
+        </label>
+
+        <button
+          onClick={() => {
+            editTusk(id, '');
+          }}
+          className="icon icon-edit"
+        ></button>
+        <button
+          onClick={() => {
+            todoDelete(id);
+          }}
+          className="icon icon-destroy"
+        ></button>
+      </div>
+      <form onSubmit={onSubmit}>
+        <input onChange={onLabelChange} value={label} type="text" className="edit" />
+      </form>
+    </>
+  );
+};
 
 Task.defaultProps = {
   date: new Date(),
   value: '',
-  id: 1432,
   onCheckedClick: () => {},
   todoDelete: () => {},
   editTusk: () => {},
@@ -90,7 +136,6 @@ Task.defaultProps = {
 
 Task.propTypes = {
   value: PropTypes.string,
-  id: PropTypes.number,
   onCheckedClick: PropTypes.func,
   todoDelete: PropTypes.func,
   editTusk: PropTypes.func,
