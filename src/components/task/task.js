@@ -14,31 +14,35 @@ const Task = ({ date, value, id, onCheckedClick, todoDelete, editTusk, completed
   let timer;
 
   useEffect(() => {
-    if (!timerState) return;
-    if (sec === 1 && min === 0) {
-      return () => {
-        setTimerState(false);
-        clearInterval(timer);
-        setMin(0);
-        setSec(0);
-      };
+    if (timerState) {
+      timer = setInterval(() => {
+        setSec((c) => c - 1);
+        console.log('timer on');
+        if (sec === 1) {
+          if (min === 0) {
+            setTimerState(false);
+          } else {
+            setMin(min - 1);
+            setSec(59);
+          }
+        }
+      }, 1000);
     }
-    timer = setInterval(() => {
-      setSec((c) => c - 1);
-      if (sec === 1) {
-        setMin(min - 1);
-        setSec(59);
-      }
-    }, 1000);
     return () => {
-      if (sec === 1 && min === 0) {
-        clearInterval(timer);
-        setTimerState(false);
-      } else {
-        clearInterval(timer);
-      }
+      clearInterval(timer);
+      console.log('timer off');
     };
   });
+
+  const stop = () => {
+    setTimerState(false);
+  };
+
+  const start = () => {
+    if (min !== 0 && sec !== 0) {
+      setTimerState(true);
+    }
+  };
 
   const checkedReturn = () => {
     return completed;
@@ -52,29 +56,6 @@ const Task = ({ date, value, id, onCheckedClick, todoDelete, editTusk, completed
     event.preventDefault();
     editTusk(id, label);
     setLabel('');
-  };
-
-  const stop = () => {
-    clearInterval(timer);
-  };
-
-  const start = () => {
-    if (timerState) {
-      timer = setInterval(() => {
-        setSec((c) => c - 1);
-        if (sec === 1 && min === 0) {
-          stop();
-          setTimerState(false);
-        }
-
-        if (sec === 1) {
-          setMin(min - 1);
-          setSec(59);
-        }
-      }, 1000);
-    } else {
-      stop();
-    }
   };
 
   return (
@@ -93,7 +74,7 @@ const Task = ({ date, value, id, onCheckedClick, todoDelete, editTusk, completed
         <label>
           <span className="title">{value}</span>
           <span className="description">
-            <button onClick={timerState ? start : null} className="icon icon-play"></button>
+            <button onClick={start} className="icon icon-play"></button>
             <button onClick={stop} className="icon icon-pause"></button> {min < 10 ? '0' + min : min}:
             {sec < 10 ? '0' + sec : sec}
           </span>
