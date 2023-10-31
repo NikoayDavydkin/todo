@@ -17,7 +17,6 @@ const Task = ({ date, value, id, onCheckedClick, todoDelete, editTusk, completed
     if (timerState) {
       timer = setInterval(() => {
         setSec((c) => c - 1);
-        console.log('timer on');
         if (sec === 1) {
           if (min === 0) {
             setTimerState(false);
@@ -30,7 +29,6 @@ const Task = ({ date, value, id, onCheckedClick, todoDelete, editTusk, completed
     }
     return () => {
       clearInterval(timer);
-      console.log('timer off');
     };
   });
 
